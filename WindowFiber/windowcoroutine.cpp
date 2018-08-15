@@ -48,7 +48,12 @@ struct schedule* coroutine_open(void)
     struct coroutine **co = (coroutine**)calloc(comanag->cap, sizeof(struct coroutine*));
     comanag->co = co;
     comanag->coroutine_count = 0;
-    comanag->main = ConvertThreadToFiberEx(NULL, FIBER_FLAG_FLOAT_SWITCH);
+	/*ConvertThreadToFiberEx(NULL,??);
+	  CreateFiber()和CreateFiberEx()的方式不太适合用来主线程转主协程，主要是第一个参数SIZE_T  dwStackSize没办法写
+	  这个方法在测试的使用直接造成访问权限冲突了，应该是越界或者访存的问题
+	*/
+	
+	comanag->main = ConvertThreadToFiber(NULL);
     return comanag;
 }
 /*
@@ -106,7 +111,23 @@ int coroutine_new(struct schedule* S, coroutine_function func, void * ud)
     S->coroutine_count++;
     return S->cur_index++;
 }
-static inline VOID WINAPI _comain(LPVOID ptr) {
+/*该函数的设计是依赖于CreateFiberEx
+ * mainfunc(uint32_t low32, uint32_t hi32)
+ 此处想要将参数也传过去，选择方案CreateFiberEx()
+ LPVOID CreateFiberEx(
+ SIZE_T                dwStackCommitSize,
+ SIZE_T                dwStackReserveSize,
+ DWORD                 dwFlags,
+ LPFIBER_START_ROUTINE lpStartAddress,
+ LPVOID                lpParameter
+ );
+ LPVOID CreateFiber(
+ SIZE_T                dwStackSize,
+ LPFIBER_START_ROUTINE lpStartAddress,
+ LPVOID                lpParameter
+ ); 
+ */
+static inline VOID WINAPI mainfunc(LPVOID ptr) {
     struct schedule * S = reinterpret_cast<struct schedule*>(ptr);
     int id = S->running;
     struct coroutine * co = S->co[id];
@@ -138,7 +159,9 @@ void coroutine_resume(struct schedule* S, int id)
         switch (co->status)
         {
         case COROUTINE_READY:
-            co->ctx = CreateFiberEx(_INT_STACK, 0, FIBER_FLAG_FLOAT_SWITCH, _comain, S);
+		
+		   co->ctx = CreateFiber(_INT_STACK,  mainfunc,S); 
+           // co->ctx = CreateFiberEx(_INT_STACK, 0, ??, mainfunc, S);
         case COROUTINE_SUSPEND:
             co->status = COROUTINE_RUNNING;
             S->running = id;
