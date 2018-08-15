@@ -30,19 +30,8 @@
 *.exe
 *.out
 *.app
-/.vs/Coroutine/v15/Browse.VC.db
-/.vs/Coroutine/v15/.suo
-/.vs/CoroutineDemo/v15/.suo
-*.tlog
-/WindowFiber/Debug/WindowFiber.log
-/WindowFiber/Debug/vc141.pdb
-/WindowFiber/Debug/vc141.idb
-/Debug/WindowFiber.pdb
-/Debug/WindowFiber.ilk
-/.vs/CoroutineDemo/v15/ipch/AutoPCH/d16b6c3a57dd0133/MAINTEST.ipch
-/.vs/CoroutineDemo/v15/ipch/AutoPCH/335c49e54b5b91f8/WINDOWCOROUTINE.ipch
-/.vs/CoroutineDemo/v15/Browse.VC.opendb
-/.vs/CoroutineDemo/v15/Browse.VC.db
-/.vs/ProjectSettings.json
-/.vs/VSWorkspaceState.json
-/WindowFiber/WindowFiber.vcxproj.user
+
+# DebugFile
+/Debug
+# ReleaseFile
+/Release
