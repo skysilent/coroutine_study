@@ -35,3 +35,7 @@
 /Debug
 # ReleaseFile
 /Release
+#.vs
+/.vs
+#WindowFiber
+/WindowFiber/Debug
