@@ -39,3 +39,15 @@
 /.vs
 #WindowFiber
 /WindowFiber/Debug
+/WindowsMessageCircle/WindowsMessageCircle.vcxproj.filters
+/WindowsMessageCircle/Debug/WindowsMessageCircle.log
+/WindowsMessageCircle/Debug/WindowsMessageCircle.Build.CppClean.log
+/WindowsMessageCircle/Debug/WindowsM.01F764D9.tlog/WindowsMessageCircle.lastbuildstate
+/WindowsMessageCircle/Debug/WindowsM.01F764D9.tlog/link.write.1.tlog
+/WindowsMessageCircle/Debug/WindowsM.01F764D9.tlog/link.read.1.tlog
+/WindowsMessageCircle/Debug/WindowsM.01F764D9.tlog/link.command.1.tlog
+/WindowsMessageCircle/Debug/WindowsM.01F764D9.tlog/CL.write.1.tlog
+/WindowsMessageCircle/Debug/WindowsM.01F764D9.tlog/CL.read.1.tlog
+/WindowsMessageCircle/Debug/WindowsM.01F764D9.tlog/CL.command.1.tlog
+/WindowsMessageCircle/Debug/vc141.pdb
+/WindowsMessageCircle/Debug/vc141.idb

@@ -21,7 +21,6 @@ struct coroutine;
 struct schedule {
     PVOID main;                 // 纤程管理器中保存的临时纤程对象
     int running;                // 当前纤程管理器中运行的纤程id
-
     int cur_index;              // 当前纤程集轮询中当前索引
     int cap;                    // 纤程集容量,
     int coroutine_count;        // 协程个数
@@ -49,6 +48,9 @@ schedule* coroutine_start(void)
     comanag->main = ConvertThreadToFiberEx(NULL, FIBER_FLAG_FLOAT_SWITCH);
     return comanag;
 }
+/*
+  清理某一个协程的信息数据，回收空间
+*/
 inline void _delete_coroutine(coroutine *co) {
     DeleteFiber(co->ctx);
     free(co);

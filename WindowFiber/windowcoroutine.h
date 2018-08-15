@@ -42,9 +42,9 @@ extern schedule* coroutine_start(void);
 extern void coroutine_close(schedule*S);
 /*
 * 创建一个纤程对象,并返回创建纤程的id. 创建好的纤程状态是CS_Ready
-* S 是 co_start 返回的纤程管理器
+* S 是 coroutine_start 返回的纤程管理器
 * func 是纤程运行的主体
-* ud  是 用户传入的数据, co_f 中 ud 会使用
+* ud  是 用户传入的数据, coroutine_function 传入的参数(args)
 *  返回创建好的纤程标识id(id指的是当前的管理器中的序号位置)
 */
 extern int coroutine_create(schedule* S, coroutine_function func, void * ud);
@@ -59,7 +59,7 @@ extern void coroutine_resume(schedule* S, int id);
 
 /*
 * 中断当前运行的的纤程, 并将CPU交给主纤程处理调度.
-* S    : 纤程管理器对象
+* S 纤程管理器对象
 */
 extern void   coroutine_yield(schedule*S);
 

@@ -22,7 +22,7 @@ static void test(void * S) {
 
     int co1 = coroutine_create((schedule*)S, _foo, &arg1);
     int co2 = coroutine_create((schedule*)S, _foo, &arg2);
-    printf("main start\n");
+    printf("coroutine start\n");
     int c1 = coroutine_status((schedule*)S, co1);
     int c2 = coroutine_status((schedule*)S, co2);
     while (c1&&c2) {
@@ -31,7 +31,7 @@ static void test(void * S) {
         c1 = coroutine_status((schedule*)S, co1);
         c2 = coroutine_status((schedule*)S, co2);
     }
-    printf("main end\n");
+    printf("coroutine end  \n");
 }
 
 int main(int argc, char * argv[]) {
