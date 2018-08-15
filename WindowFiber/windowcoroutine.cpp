@@ -4,7 +4,10 @@
 #define _INT_STACK        (1024 * 1024)
 // 默认初始化创建纤程数目
 #define _INT_COROUTINE    (16)
-
+#define COROUTINE_DEAD 0
+#define COROUTINE_READY 1
+#define COROUTINE_RUNNING 2
+#define COROUTINE_SUSPEND 3
 /*
 * 单个纤程单元 coroutine , 还有纤程集管理器 S
 */
@@ -31,12 +34,12 @@ struct coroutine {
     PVOID ctx;                    // 操作系统纤程对象                
     coroutine_function func;      // 纤程执行的函数体
     void * ud;                    // 纤程执行的额外参数
-    CoroutineStatus status;       // 当前纤程运行状态
+    int status;       // 当前纤程运行状态
 };
 /* 通过将主线程转换为纤程，此处需要和纤程关闭的时候使用(将纤程转为线程)
 *
 */
-schedule* coroutine_start(void)
+struct schedule* coroutine_open(void)
 {
     struct schedule*comanag = (schedule*)malloc(sizeof(struct schedule));
     comanag->cur_index = 0;
@@ -59,11 +62,11 @@ inline struct coroutine* _new_coroutine(coroutine_function func, void * ud) {
     struct coroutine *co = (coroutine*)malloc(sizeof(struct coroutine));
     co->func = func;
     co->ud = ud;
-    co->status = CoroutineStatus_Ready;
+    co->status = COROUTINE_READY;
     return co;
 }
 
-void coroutine_close(schedule* S)
+void coroutine_close(struct schedule* S)
 {
     for (int i = 0; i < S->cap; i++) {
         struct coroutine *co = S->co[i];
@@ -79,7 +82,7 @@ void coroutine_close(schedule* S)
     ConvertFiberToThread();
 }
 
-int coroutine_create(schedule* S, coroutine_function func, void * ud)
+int coroutine_new(struct schedule* S, coroutine_function func, void * ud)
 {
     struct coroutine *co = _new_coroutine(func, ud);
     int index = S->cur_index;
@@ -110,13 +113,13 @@ static inline VOID WINAPI _comain(LPVOID ptr) {
 
     co->func(S, co->ud);
     co = S->co[id];
-    co->status = CoroutineStatus_Dead;
+    co->status = COROUTINE_DEAD;
 
     SwitchToFiber(S->main);
 }
 /*
 */
-void coroutine_resume(schedule* S, int id)
+void coroutine_resume(struct schedule* S, int id)
 {
     if (S->running != -1) {
         int runningid = S->running;
@@ -134,10 +137,10 @@ void coroutine_resume(schedule* S, int id)
         coroutine * co = S->co[id];
         switch (co->status)
         {
-        case CoroutineStatus_Ready:
+        case COROUTINE_READY:
             co->ctx = CreateFiberEx(_INT_STACK, 0, FIBER_FLAG_FLOAT_SWITCH, _comain, S);
-        case CoroutineStatus_Suspend:
-            co->status = CoroutineStatus_Running;
+        case COROUTINE_SUSPEND:
+            co->status = COROUTINE_RUNNING;
             S->running = id;
             S->main = GetCurrentFiber();
             SwitchToFiber(co->ctx);
@@ -147,13 +150,13 @@ void coroutine_resume(schedule* S, int id)
     }
 }
 
-void coroutine_yield(schedule* S)
+void coroutine_yield(struct schedule* S)
 {
     if (S) {
         int id = S->running;
         struct coroutine* co = S->co[id];
 
-        co->status = CoroutineStatus_Suspend;
+        co->status = COROUTINE_SUSPEND;
         S->running = -1;
         co->ctx = GetCurrentFiber();
 
@@ -161,18 +164,18 @@ void coroutine_yield(schedule* S)
     }
 }
 
-CoroutineStatus coroutine_status(schedule* S, int id)
+int coroutine_status(struct schedule* S, int id)
 {
     if (S&&id >= 0 && id<S->cap) {
         if (S->co[id]) {
             return S->co[id]->status;
         }
-        return CoroutineStatus_Dead;
+        return COROUTINE_DEAD;
     }
-    return CoroutineStatus_Dead;
+    return COROUTINE_DEAD;
 }
 
-int coroutine_running(schedule* S)
+int coroutine_running(struct schedule* S)
 {
     if (S) {
         return S->running;
