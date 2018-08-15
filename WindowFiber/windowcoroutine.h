@@ -8,7 +8,7 @@
  第一次：将主线程转为纤程，将纤程转为主线程，第一次没处理，程序跳不出来，指针不知道跑哪去了？
     https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-convertthreadtofiber
     https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-convertfibertothread
- 
+ 更进一步设计资料参考   http://blog.jobbole.com/104789/
  */
 
 #ifndef WINDOWCOROUTINE_H_
