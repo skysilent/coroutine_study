@@ -1,20 +1,21 @@
 /* Copyright 2018
- 特别说明，此处代码严格参考云风的库coroutine(linux 环境),基于Fiber
+ 特别说明，此处代码严格参考云风的库coroutine(linux C++环境),基于Fiber
  github 地址：https://github.com/cloudwu/coroutine
  不知道会不会有内存溢出的情况,反正先理解一下纤程的用处
  依赖材料:
     https://docs.microsoft.com/en-us/windows/desktop/api/WinBase/nf-winbase-switchtofiber 
     windows下面有个co_yield的玩意是个关键字
- 第一次：将主线程转为纤程，将纤程转为主线程，第一次没处理，程序跳不出来，指针不知道跑哪去了？
+ 将主线程转为纤程，如果直接创建协程（CreateFiber）访问权限冲突，直接崩
     https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-convertthreadtofiber
+ 将纤程转为主线程，程序跳不出来，指针不知道跑哪去了(调试时程序调完了，程序还在,协程的地址没出现过，不是主协程也不是一般协程)？
     https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-convertfibertothread
- 更进一步设计资料参考   http://blog.jobbole.com/104789/
+ 
  */
 
 #ifndef WINDOWCOROUTINE_H_
 #define WINDOWCOROUTINE_H_
 
-/*协程管理器*/
+/*协程管理表*/
 struct schedule;
 
 /*
@@ -67,9 +68,9 @@ extern void coroutine_yield(struct schedule*S);
 extern int  coroutine_status(struct schedule*S, int id);
 
 /*
-* 得到当前纤程系统中运行的纤程, 返回 < 0表示没有纤程在运行
+* 得到当前纤程系统中运行的纤程
 * S纤程管理器对象
-* 返回当前运行的纤程id,
+* 返回当前运行的纤程id,-1表示没有纤程在运行
 */
 extern int coroutine_running(struct schedule*S);
 

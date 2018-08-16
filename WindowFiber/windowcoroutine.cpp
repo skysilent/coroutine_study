@@ -49,10 +49,10 @@ struct schedule* coroutine_open(void)
     comanag->co = co;
     comanag->coroutine_count = 0;
 	/*ConvertThreadToFiberEx(NULL,??);
-	  CreateFiber()和CreateFiberEx()的方式不太适合用来主线程转主协程，主要是第一个参数SIZE_T  dwStackSize没办法写
-	  这个方法在测试的使用直接造成访问权限冲突了，应该是越界或者访存的问题
+	  CreateFiber()和CreateFiberEx()的方式不太适合用来主线程转主协程，
+      主要是第一个参数SIZE_T  dwStackSize没办法写
+	  这个方法在测试使用时候直接造成访问权限冲突了，应该是越界的问题
 	*/
-	
 	comanag->main = ConvertThreadToFiber(NULL);
     return comanag;
 }
@@ -63,6 +63,7 @@ inline void _delete_coroutine(coroutine *co) {
     DeleteFiber(co->ctx);
     free(co);
 }
+
 inline struct coroutine* _new_coroutine(coroutine_function func, void * ud) {
     struct coroutine *co = (coroutine*)malloc(sizeof(struct coroutine));
     co->func = func;
@@ -132,16 +133,16 @@ static inline VOID WINAPI mainfunc(LPVOID ptr) {
     int id = S->running;
     struct coroutine * co = S->co[id];
 
-    co->func(S, co->ud);
+    co->func(S, co->ud);  //  ==>coroutine_function(S,co->ud)
     co = S->co[id];
     co->status = COROUTINE_DEAD;
 
     SwitchToFiber(S->main);
 }
-/*
-*/
+
 void coroutine_resume(struct schedule* S, int id)
 {
+    //  找一些不在运行中的协程进行管理，肯定不会再运行
     if (S->running != -1) {
         int runningid = S->running;
         coroutine * co = S->co[runningid];
