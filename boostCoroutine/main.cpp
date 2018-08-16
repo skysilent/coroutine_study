@@ -1,38 +1,13 @@
-//#include <iostream>
-//#include <boost/coroutine2/all.hpp>
-//void foo2(boost::coroutines2::coroutine<void>::pull_type&sink) {
-//    std::cout << "a2 ";
-//    sink();
-//    std::cout << "b2 ";
-//    sink();
-//    std::cout << "c2 ";
-//}
-//void foo(boost::coroutines2::coroutine<void>::pull_type & sink) {
-//    sink();
-//    std::cout << "a1 ";    
-//    boost::coroutines2::coroutine<void>::push_type source(foo2);
-//    source();
-//    source();
-//    std::cout << "b1 ";
-//    sink();
-//    std::cout << "c1 ";
-//}
-//
-//
-//int main() {
-//    boost::coroutines2::coroutine<void>::push_type source(foo);
-//    std::cout << "a0 ";
-//    source();
-//    std::cout << "b0 ";
-//    source();
-//    std::cout << "c0 ";
-//    getchar();
-//    return 0;
-//}
+/*
+* 协程与协程之间存在调用与被调用的关系，主要还是pull_type和push_type的关系
+* 这种不平等的关系保证了被调用者回馈调用者，完成返回上一级操作
+* 定义中参数属于：
+* 被调用者：void functionname(boost::coroutines2::coroutine<int>::pull_type &) 
+* 调用者  ：boost::coroutines2::coroutine<int>::push_type source(函数名)
+*/
+/*
 #include <iostream>
 #include <boost/coroutine2/all.hpp>
-//#include <boost/coroutine2/detail/push_coroutine.hpp>
-//#include <boost/coroutine2/detail/pull_coroutine.hpp>
 
 constexpr int N = 10;
 
@@ -63,4 +38,45 @@ int main() {
         source(i);
     }
     return 0;
+}
+*/
+/*
+#include <boost/coroutine2/all.hpp>
+#include <tuple>
+#include <string>
+#include <iostream>
+
+
+void cooperative(boost::coroutines2::coroutine<std::tuple<int, std::string>>::pull_type &source)
+{
+    auto args = source.get();
+    std::cout << std::get<0>(args) << " " << std::get<1>(args) << '\n';
+    source();
+    args = source.get();
+    std::cout << std::get<0>(args) << " " << std::get<1>(args) << '\n';
+}
+
+int main()
+{
+    boost::coroutines2::coroutine<std::tuple<int, std::string>>::push_type sink{ cooperative };
+    sink(std::make_tuple(0, "aaa"));
+    sink(std::make_tuple(1, "bbb"));
+    std::cout << "end\n";
+}
+*/
+#include<boost/thread/thread.hpp>
+#include<boost/coroutine2/all.hpp>
+#include<iostream>
+#include<thread>
+typedef boost::coroutines2::coroutine<int> boost_coroutine;
+
+void function() {
+    std::cout << "in function" << std::endl;
+}
+int main() 
+{
+    /*thread *t = new thread(function);
+    thread::id id= t->get_id();
+    
+    std::cout << id << std::endl;*/
 }

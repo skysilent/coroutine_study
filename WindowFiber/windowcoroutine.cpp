@@ -1,3 +1,4 @@
+#define DEBUG 0
 #include"windowcoroutine.h"
 #include<Windows.h>
 // 纤程栈大小
@@ -15,6 +16,12 @@
 #define _INT_STACK        (1024 * 1024)
 // 默认初始化创建纤程数目
 #define _INT_COROUTINE    (16)
+
+#if DEBUG
+#include<stdio.h>
+#include<iostream>
+#endif // DEBUG
+
 
 /*
 * 单个纤程单元 coroutine , 还有纤程集管理器 S
@@ -54,6 +61,10 @@ struct schedule* coroutine_open(void)
 	  这个方法在测试使用时候直接造成访问权限冲突了，应该是越界的问题
 	*/
 	comanag->main = ConvertThreadToFiber(NULL);
+#if DEBUG
+    std::cout << "COROUTINE_OPEN\n" ;
+    std::cout << "ConvertThreadToFiber main: " << comanag->main << "\n\n";
+#endif
     return comanag;
 }
 /*
@@ -161,13 +172,21 @@ void coroutine_resume(struct schedule* S, int id)
         {
         case COROUTINE_READY:
 		
-		   co->ctx = CreateFiber(_INT_STACK,  mainfunc,S); 
+		   co->ctx = CreateFiber(_INT_STACK,  mainfunc,S);   
+#if DEBUG
+           std::cout << "COROUTINE_READY" << "\n";
+           std::cout << "CreateFiber  ctx: "<<co->ctx << "\n";
+#endif
            // co->ctx = CreateFiberEx(_INT_STACK, 0, ??, mainfunc, S);
         case COROUTINE_SUSPEND:
             co->status = COROUTINE_RUNNING;
             S->running = id;
             S->main = GetCurrentFiber();
             SwitchToFiber(co->ctx);
+#if DEBUG
+            std::cout << "COROUTINE_SUSPEND" << "\n";
+            std::cout << "main: " << S->main << "\n\n";
+#endif
         default:
             break;
         }
@@ -183,7 +202,11 @@ void coroutine_yield(struct schedule* S)
         co->status = COROUTINE_SUSPEND;
         S->running = -1;
         co->ctx = GetCurrentFiber();
-
+#if DEBUG
+        std::cout << "COROUTINE_YIELD " << "\n";
+        std::cout << "co->ctx: " <<co->ctx << "\n";
+        std::cout << "main: " << S->main << "\n\n";
+#endif
         SwitchToFiber(S->main);
     }
 }

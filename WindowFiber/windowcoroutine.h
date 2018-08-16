@@ -9,7 +9,7 @@
     https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-convertthreadtofiber
  将纤程转为主线程，程序跳不出来，指针不知道跑哪去了(调试时程序调完了，程序还在,协程的地址没出现过，不是主协程也不是一般协程)？
     https://docs.microsoft.com/zh-cn/windows/desktop/api/winbase/nf-winbase-convertfibertothread
- 
+ 添加多线程测试:程序中管理器只对一个线程内的协程工作有效
  */
 
 #ifndef WINDOWCOROUTINE_H_
